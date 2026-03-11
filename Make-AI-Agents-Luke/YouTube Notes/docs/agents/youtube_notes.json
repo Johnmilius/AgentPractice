@@ -1,0 +1,158 @@
+{
+  "agent_id": "youtube_notes",
+  "version": "1.0.0",
+  "tier": 2,
+  "agent_type": "llm_agent",
+  "description": "Researches a topic by finding YouTube videos, reading their transcripts, and producing a structured markdown file that teaches the user about the topic and summarizes each video.",
+
+  "io_contract": {
+    "inputs": [
+      {
+        "name": "topic",
+        "type": "string",
+        "required": true,
+        "description": "The subject to research on YouTube"
+      },
+      {
+        "name": "audience_level",
+        "type": "string",
+        "required": true,
+        "enum": ["beginner", "intermediate", "advanced"],
+        "description": "The knowledge level to pitch the teaching doc at"
+      },
+      {
+        "name": "num_videos",
+        "type": "integer",
+        "required": false,
+        "default": 5,
+        "description": "Number of videos to find and synthesize"
+      },
+      {
+        "name": "output_path",
+        "type": "string",
+        "required": false,
+        "default": "Make-AI-Agents-Luke/YouTube Notes/notes/<topic>.md",
+        "description": "Where to save the output markdown file"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "notes_file",
+        "type": "file",
+        "format": "markdown",
+        "description": "Markdown file containing a synthesized teaching section followed by per-video summaries with YouTube links and timestamp highlights"
+      }
+    ],
+    "side_effects": [
+      "If output file already exists for the topic, new content is appended rather than overwriting"
+    ]
+  },
+
+  "workflow": {
+    "steps": [
+      {
+        "step": 1,
+        "name": "prompt_user",
+        "description": "Ask the user for: topic, audience_level, num_videos (default 5), output_path (default YouTube Notes folder)"
+      },
+      {
+        "step": 2,
+        "name": "check_existing_file",
+        "description": "Check if <topic>.md already exists at output_path. If yes, load it for append mode."
+      },
+      {
+        "step": 3,
+        "name": "search_youtube",
+        "description": "Search YouTube for the topic. Rank results by a mix of recency and view count. Pull top candidates."
+      },
+      {
+        "step": 4,
+        "name": "fetch_transcripts",
+        "description": "Fetch transcripts via yt-dlp or YouTube Data API. If a video has no transcript, skip it and pull the next candidate. Repeat until num_videos valid transcripts are found or candidates are exhausted."
+      },
+      {
+        "step": 5,
+        "name": "summarize_videos",
+        "description": "For each video, extract key points and notable timestamp highlights."
+      },
+      {
+        "step": 6,
+        "name": "synthesize",
+        "description": "Write a teaching doc section drawing across all videos, pitched at the specified audience_level."
+      },
+      {
+        "step": 7,
+        "name": "write_output",
+        "description": "Save or append the markdown file at output_path. Structure: teaching section first, per-video summaries with links and timestamps below."
+      }
+    ]
+  },
+
+  "error_handling": [
+    {
+      "scenario": "Video has no transcript",
+      "behavior": "Skip silently and pull the next search candidate"
+    },
+    {
+      "scenario": "Fewer than num_videos transcripts found after exhausting search results",
+      "behavior": "Warn the user, then proceed with however many valid videos were found"
+    },
+    {
+      "scenario": "Output file already exists",
+      "behavior": "Append new content; do not overwrite existing notes"
+    }
+  ],
+
+  "dependencies": {
+    "tools": ["yt-dlp", "YouTube Data API v3"],
+    "runtime": "Python 3.10+"
+  },
+
+  "config": {
+    "default_num_videos": 5,
+    "default_output_path": "Make-AI-Agents-Luke/YouTube Notes/notes/",
+    "ranking_weights": { "recency": 0.4, "view_count": 0.6 },
+    "transcript_fetch_method": "yt-dlp"
+  },
+
+  "auth": {
+    "required_env_vars": ["YOUTUBE_DATA_API_KEY"]
+  },
+
+  "validation": {
+    "commands": ["pytest tests/test_youtube_notes.py"],
+    "test_cases": [
+      {
+        "id": "tc_01",
+        "description": "Basic happy path",
+        "input": {
+          "topic": "Python decorators",
+          "audience_level": "beginner",
+          "num_videos": 3
+        },
+        "expected_output": "Markdown file created at default path with teaching section and 3 video summaries including YouTube links"
+      },
+      {
+        "id": "tc_02",
+        "description": "Existing file detected — append mode",
+        "input": {
+          "topic": "Python decorators",
+          "audience_level": "beginner",
+          "num_videos": 3
+        },
+        "precondition": "tc_01 has already run and output file exists",
+        "expected_output": "New content appended to existing file without overwriting prior notes"
+      },
+      {
+        "id": "tc_03",
+        "description": "No transcripts available in top results",
+        "input": {
+          "topic": "obscure niche topic",
+          "audience_level": "intermediate",
+          "num_videos": 5
+        },
+        "expected_output": "Agent searches beyond initial results, warns user if insufficient transcripts found, outputs file with however many valid videos were found"
+      }
+    ]
+  }
+}

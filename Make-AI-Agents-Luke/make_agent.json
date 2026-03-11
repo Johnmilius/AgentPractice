@@ -1,0 +1,114 @@
+{
+  "_template_info": {
+    "description": "Master template for Luke's NGAI agent specs. All fields marked with 'tier' indicate the minimum tier at which that field is required. Fields without a tier annotation are required at all tiers.",
+    "tiers": {
+      "1": "Prototype / internal tool (~15 min)",
+      "2": "Shared / deployed service (~25 min)",
+      "3": "Framework / platform component (~40 min)"
+    },
+    "usage": "Copy this file, rename to <agent_id>.json, remove _template_info, and fill in all fields required for your chosen tier."
+  },
+
+  "agent_id": "<snake_case_name>",
+  "version": "1.0.0",
+  "tier": "<1 | 2 | 3>",
+  "agent_type": "<llm_agent | rule_based | hybrid | retrieval>",
+  "description": "<One sentence: what does this agent do and why does it exist?>",
+
+  "io_contract": {
+    "inputs": [
+      {
+        "name": "<input_name>",
+        "type": "<string | integer | boolean | list | dict | file>",
+        "required": true,
+        "description": "<What is this input and where does it come from?>"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "<output_name>",
+        "type": "<string | integer | boolean | list | dict | file>",
+        "format": "<optional: markdown | json | csv | plain_text>",
+        "description": "<What does this output contain?>"
+      }
+    ],
+    "side_effects": [
+      "<Tier 2+> List any persistent state changes, file writes, API calls with side effects, etc."
+    ]
+  },
+
+  "workflow": {
+    "steps": [
+      {
+        "step": 1,
+        "name": "<step_name>",
+        "description": "<What happens in this step?>"
+      }
+    ]
+  },
+
+  "error_handling": [
+    {
+      "_tier": 2,
+      "scenario": "<What can go wrong?>",
+      "behavior": "<How does the agent respond?>"
+    }
+  ],
+
+  "dependencies": {
+    "_tier": 2,
+    "tools": ["<external tool or API the agent relies on>"],
+    "runtime": "<e.g. Python 3.10+, Node 18+>"
+  },
+
+  "config": {
+    "_tier": 2,
+    "_description": "Runtime-configurable values with defaults. Add any agent-specific settings here.",
+    "example_setting": "<default_value>"
+  },
+
+  "auth": {
+    "_tier": 2,
+    "_description": "API keys, tokens, or credentials required. Never store values here — list names only.",
+    "required_env_vars": ["<ENV_VAR_NAME>"]
+  },
+
+  "validation": {
+    "commands": ["<command to run tests, e.g. pytest tests/test_<agent_id>.py>"],
+    "test_cases": [
+      {
+        "id": "tc_01",
+        "description": "<What scenario does this test?>",
+        "input": {},
+        "expected_output": "<What should happen?>"
+      },
+      {
+        "_tier": 2,
+        "id": "tc_02",
+        "description": "<Edge case or error path>",
+        "input": {},
+        "expected_output": "<What should happen?>"
+      },
+      {
+        "_tier": 3,
+        "id": "tc_03",
+        "description": "<Complex or integration scenario>",
+        "input": {},
+        "expected_output": "<What should happen?>"
+      }
+    ]
+  },
+
+  "observability": {
+    "_tier": 3,
+    "logging": "<What should be logged and at what level?>",
+    "metrics": ["<Key metrics to track, e.g. latency, token usage, success rate>"],
+    "alerts": ["<Conditions that should trigger an alert>"]
+  },
+
+  "scaling": {
+    "_tier": 3,
+    "concurrency": "<Can this agent run in parallel? Any limits?>",
+    "rate_limits": "<Any external API rate limits to be aware of?>"
+  }
+}
