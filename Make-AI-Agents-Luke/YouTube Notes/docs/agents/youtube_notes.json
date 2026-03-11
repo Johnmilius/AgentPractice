@@ -104,7 +104,7 @@
   ],
 
   "dependencies": {
-    "tools": ["yt-dlp", "YouTube Data API v3"],
+    "tools": ["youtube-transcript-api", "YouTube Data API v3"],
     "runtime": "Python 3.10+"
   },
 

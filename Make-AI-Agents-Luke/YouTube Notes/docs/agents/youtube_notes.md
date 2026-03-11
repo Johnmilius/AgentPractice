@@ -70,6 +70,6 @@ From there, it handles everything: searching, fetching transcripts, summarizing,
 
 ## Implementation Notes
 
-- Uses `yt-dlp` or YouTube Data API v3 for transcript and metadata retrieval
+- Uses `youtube-transcript-api` for transcript retrieval and YouTube Data API v3 for search and metadata
 - Requires Python 3.10+
 - Tests live in `tests/test_youtube_notes.py` and should validate the three core test cases defined in `youtube_notes.json`
