@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p \"C:/Users/lukeb/OneDrive/AgentPractice/AgentPractice/docs/superpowers/specs\" && mkdir -p \"C:/Users/lukeb/OneDrive/AgentPractice/AgentPractice/Make-AI-Agents-Luke/YouTube Notes/docs/agents\")",
+      "WebSearch",
+      "WebFetch(domain:www.builder.io)",
+      "WebFetch(domain:shipyard.build)",
+      "WebFetch(domain:www.producttalk.org)",
+      "WebFetch(domain:creatoreconomy.so)",
+      "WebFetch(domain:www.siddharthbharath.com)",
+      "Bash(cd \"C:/Users/lukeb/OneDrive/AgentPractice/AgentPractice/Make-AI-Agents-Luke/YouTube Notes\" && python -m pytest tests/test_youtube_notes.py -v 2>&1)"
+    ]
+  }
+}
